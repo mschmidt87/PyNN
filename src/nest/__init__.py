@@ -10,6 +10,7 @@ NEST v2 implementation of the PyNN API.
 
 import numpy
 import nest
+NEST_SYNAPSE_TYPES = nest.Models(mtype='synapses')
 from pyNN.nest import simulator
 from pyNN import common, recording, errors, space, __doc__
 common.simulator = simulator
@@ -35,7 +36,7 @@ from pyNN import standardmodels
 
 Set = set
 tempdirs       = []
-NEST_SYNAPSE_TYPES = nest.Models(mtype='synapses')
+
 
 STATE_VARIABLE_MAP = {"v": "V_m", "w": "w"}
 logger = logging.getLogger("PyNN")

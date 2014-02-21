@@ -9,6 +9,7 @@ Synapse Dynamics classes for nest
 
 import nest
 from pyNN.standardmodels import synapses, build_translations, SynapseDynamics, STDPMechanism
+from pyNN.nest import NEST_SYNAPSE_TYPES
 
 class SynapseDynamics(SynapseDynamics):
     __doc__ = SynapseDynamics.__doc__
@@ -28,10 +29,9 @@ class SynapseDynamics(SynapseDynamics):
                 logger.warning(", ".join(model for model in base_model))
                 base_model = list(base_model)[0]
                 logger.warning("By default, %s is used" % base_model)
-        available_models = nest.Models(mtype='synapses') 
-        if base_model not in available_models:
+        if base_model not in NEST_SYNAPSE_TYPES:
             raise ValueError("Synapse dynamics model '%s' not a valid NEST synapse model. "
-                             "Possible models in your NEST build are: %s" % (base_model, available_models))
+                             "Possible models in your NEST build are: %s" % (base_model, NEST_SYNAPSE_TYPES))
             
         synapse_defaults = nest.GetDefaults(base_model)
         for ignore in ('synapsemodel', 'num_connections', 'num_connectors',
