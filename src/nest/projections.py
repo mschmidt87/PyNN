@@ -86,6 +86,41 @@ class Projection(common.Projection):
             tau_syn = nest.GetStatus(targets, (param_name))
             nest.SetStatus(self.connections, 'tau_psc', tau_syn)
 
+    def transform_parameters(self):
+        params = {}
+        parameter_space = self.synapse_type.native_parameters
+        for ii,jj in parameter_space.items() :
+            if isinstance(jj.base_value,RandomDistribution) :
+                if jj.base_value.name == 'normal' :                          # Currently nest.NewConnect takes only normal distributions
+#                    logger.warning("Random s will be created inside NEST with NEST's own RNGs")
+                    if len(jj.base_value.parameters) == 0 :                  # Default parameters of numpy.random.RandomState.normal, for most distributions
+                        parameters = {'mean' : 0., 'std' : 1.}               # these are probably equal to the GSL default parameters, we could check this and 
+                                                                             # then remove this if/else branch
+                    else :
+                        parameters = {'mean' : jj.base_value.parameters[0], 'std' : jj.base_value.parameters[1]}
+
+                    params['ii'] = {'dist' : jj.base_value.name,         # TODO: Build in constrain
+                                        'parameters' : parameters }
+                else :
+                    jj.shape = (self.pre.size,self.post.size)
+                    params[ii] = jj.evaluate()
+                                    
+            else :
+                try:
+                    params[ii] = jj.evaluate()  # If ii is given as an array
+                except ValueError :
+                    jj.shape = (1,1)
+                    params[ii] = float(jj.evaluate()) # If ii is given as a number. Checking of the dimensions should be done in NEST
+        return params
+
+    def _connect(self, params) :
+        """
+        Create connections by calling nest.NewConnect on the presynaptic and postsynaptic population 
+        with the parameters provided by params.
+        """
+        nest.NewConnect(list(self.pre.all_cells), list(self.post.all_cells), params)
+
+
     def _convergent_connect(self, presynaptic_indices, postsynaptic_index,
                             **connection_parameters):
         """
