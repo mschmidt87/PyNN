@@ -37,6 +37,57 @@ class NewFixedProbabilityConnector() :
         params.update({'autapses' : self.allow_self_connections,
                       'rule' : 'pairwise_bernoulli',
                       'p' : self.p_connect})
+        projection._connect(params = params)
+
+class NewAllToAllConnector() :
+    def __init__(self, allow_self_connections=True, safe=True,
+                 callback=None):
+        self.allow_self_connections = allow_self_connections
+
+    def connect(self,projection) :
+        params = projection.transform_parameters()
+        params.update({'autapses' : self.allow_self_connections,
+                      'rule' : 'all_to_all'})
 
         projection._connect(params = params)
 
+class NewOneToOneConnector() :
+    def __init__(self, allow_self_connections=True, safe=True,
+                 callback=None):
+        self.allow_self_connections = allow_self_connections
+
+    def connect(self,projection) :
+        params = projection.transform_parameters()
+        params.update({'autapses' : self.allow_self_connections,
+                      'rule' : 'one_to_one'})
+
+        projection._connect(params = params)
+
+class NewFixedNumberPreConnector() :
+    def __init__(self, n, allow_self_connections=True, safe=True,
+                 callback=None):
+        self.allow_self_connections = allow_self_connections
+        self.n = n
+
+    def connect(self,projection) :
+        params = projection.transform_parameters()
+        params.update({'autapses' : self.allow_self_connections,
+                       'rule' : 'fixed_in_degree',
+                       'indegree' : self.n
+                   })
+
+        projection._connect(params = params)
+
+class NewFixedNumberPostConnector() :
+    def __init__(self, n, allow_self_connections=True, safe=True,
+                 callback=None):
+        self.allow_self_connections = allow_self_connections
+        self.n = n
+
+    def connect(self,projection) :
+        params = projection.transform_parameters()
+        params.update({'autapses' : self.allow_self_connections,
+                       'rule' : 'fixed_out_degree',
+                       'outdegree' : self.n })
+
+        projection._connect(params = params)
