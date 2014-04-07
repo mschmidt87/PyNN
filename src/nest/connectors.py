@@ -91,3 +91,18 @@ class NewFixedNumberPostConnector() :
                        'outdegree' : self.n })
 
         projection._connect(params = params)
+
+class NewFixedNumberConnector() :
+    def __init__(self, n, allow_self_connections=True, safe=True,
+                 callback=None):
+        self.allow_self_connections = allow_self_connections
+        self.n = n
+
+    def connect(self,projection) :
+        params = projection.transform_parameters()
+        params.update({'autapses' : self.allow_self_connections,
+                       'rule' : 'fixed_total_number',
+                       'N' : self.n
+                   })
+
+        projection._connect(params = params)
