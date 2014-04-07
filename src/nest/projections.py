@@ -99,7 +99,7 @@ class Projection(common.Projection):
                     else :
                         parameters = {'mean' : jj.base_value.parameters[0], 'std' : jj.base_value.parameters[1]}
 
-                    params['ii'] = {'dist' : jj.base_value.name,         # TODO: Build in constrain
+                    params[ii] = {'dist' : jj.base_value.name,         # TODO: Build in constrain
                                         'parameters' : parameters }
                 else :
                     jj.shape = (self.pre.size,self.post.size)
@@ -119,8 +119,7 @@ class Projection(common.Projection):
         with the parameters provided by params.
         """
         nest.NewConnect(list(self.pre.all_cells), list(self.post.all_cells), params)
-
-
+        
     def _convergent_connect(self, presynaptic_indices, postsynaptic_index,
                             **connection_parameters):
         """
