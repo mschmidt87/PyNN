@@ -17,8 +17,8 @@ logger = logging.getLogger("PyNN")
 class StaticSynapse(synapses.StaticSynapse, NESTSynapseMixin):
 
     translations = build_translations(
-        ('weight', 'weight', 1000.0),
-        ('delay', 'delay')
+        ('weight', 'weights', 1000.0),
+        ('delay', 'delays')
     )
     nest_name = 'static_synapse'
 
@@ -57,10 +57,10 @@ class STDPMechanism(synapses.STDPMechanism, NESTSynapseMixin):
         # for any inhomogeneous parameters, and set the inhomogeneous values
         # later
         synapse_defaults = {}
-        for name, value in self.native_parameters.items():
-            if value.is_homogeneous:
-                value.shape = (1,)
-                synapse_defaults[name] = value.evaluate(simplify=True)
+        # for name, value in self.native_parameters.items():
+        #     if value.is_homogeneous:
+        #         value.shape = (1,)
+        #         synapse_defaults[name] = value.evaluate(simplify=True)
         synapse_defaults.pop("dendritic_delay_fraction")
         synapse_defaults.pop("w_min_always_zero_in_NEST")
         # Tau_minus is a parameter of the post-synaptic cell, not of the connection

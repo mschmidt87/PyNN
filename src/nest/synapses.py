@@ -29,10 +29,10 @@ class NESTSynapseMixin(object):
     
     def _get_nest_synapse_model(self, suffix):
         synapse_defaults = {}
-        for name, value in self.native_parameters.items():
-            if value.is_homogeneous:
-                value.shape = (1,)
-                synapse_defaults[name] = value.evaluate(simplify=True)
+        # for name, value in self.native_parameters.items():
+        #     if value.is_homogeneous:
+        #         value.shape = (1,)
+        #         synapse_defaults[name] = value.evaluate(simplify=True)
         synapse_defaults.pop("tau_minus", None)
         label = "%s_%s" % (self.nest_name, suffix)
         nest.CopyModel(self.nest_name, label, synapse_defaults)
