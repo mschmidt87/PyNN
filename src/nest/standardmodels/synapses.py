@@ -17,8 +17,8 @@ logger = logging.getLogger("PyNN")
 class StaticSynapse(synapses.StaticSynapse, NESTSynapseMixin):
 
     translations = build_translations(
-        ('weight', 'weights', 1000.0),
-        ('delay', 'delays')
+        ('weight', 'weight', 1000.0),
+        ('delay', 'delay')
     )
     nest_name = 'static_synapse'
 
