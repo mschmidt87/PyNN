@@ -14,6 +14,7 @@ from pyNN.connectors import Connector, \
                             IndexBasedProbabilityConnector, \
                             FixedNumberPreConnector, \
                             FixedNumberPostConnector, \
+                            FixedTotalNumberConnector, \
                             OneToOneConnector, \
                             SmallWorldConnector, \
                             FromListConnector, \
@@ -33,11 +34,11 @@ class NewFixedProbabilityConnector() :
 
 
     def connect(self, projection) :
-        params = projection.transform_parameters()
-        params.update({'autapses' : self.allow_self_connections,
+        syn_params = projection.synapse_parameters()
+        rule_params = {'autapses' : self.allow_self_connections,
                       'rule' : 'pairwise_bernoulli',
-                      'p' : self.p_connect})
-        projection._connect(params = params)
+                      'p' : self.p_connect}
+        projection._connect(rule_params, syn_params)
 
 class NewAllToAllConnector() :
     def __init__(self, allow_self_connections=True, safe=True,
@@ -45,11 +46,11 @@ class NewAllToAllConnector() :
         self.allow_self_connections = allow_self_connections
 
     def connect(self,projection) :
-        params = projection.transform_parameters()
-        params.update({'autapses' : self.allow_self_connections,
-                      'rule' : 'all_to_all'})
+        syn_params = projection.synapse_parameters()
+        rule_params = {'autapses' : self.allow_self_connections,
+                      'rule' : 'all_to_all'}
 
-        projection._connect(params = params)
+        projection._connect(rule_params, syn_params)
 
 class NewOneToOneConnector() :
     def __init__(self, allow_self_connections=True, safe=True,
@@ -57,11 +58,11 @@ class NewOneToOneConnector() :
         self.allow_self_connections = allow_self_connections
 
     def connect(self,projection) :
-        params = projection.transform_parameters()
-        params.update({'autapses' : self.allow_self_connections,
-                      'rule' : 'one_to_one'})
+        syn_params = projection.synapse_parameters()
+        rule_params = {'autapses' : self.allow_self_connections,
+                      'rule' : 'one_to_one'}
 
-        projection._connect(params = params)
+        projection._connect(rule_params, syn_params)
 
 class NewFixedNumberPreConnector() :
     def __init__(self, n, allow_self_connections=True, safe=True,
@@ -70,13 +71,12 @@ class NewFixedNumberPreConnector() :
         self.n = n
 
     def connect(self,projection) :
-        params = projection.transform_parameters()
-        params.update({'autapses' : self.allow_self_connections,
+        syn_params = projection.synapse_parameters()
+        rule_params = {'autapses' : self.allow_self_connections,
                        'rule' : 'fixed_in_degree',
-                       'indegree' : self.n
-                   })
+                       'indegree' : self.n }
 
-        projection._connect(params = params)
+        projection._connect(rule_params, syn_params)
 
 class NewFixedNumberPostConnector() :
     def __init__(self, n, allow_self_connections=True, safe=True,
@@ -85,12 +85,12 @@ class NewFixedNumberPostConnector() :
         self.n = n
 
     def connect(self,projection) :
-        params = projection.transform_parameters()
-        params.update({'autapses' : self.allow_self_connections,
+        syn_params = projection.synapse_parameters()
+        rule_params = {'autapses' : self.allow_self_connections,
                        'rule' : 'fixed_out_degree',
-                       'outdegree' : self.n })
+                       'outdegree' : self.n }
 
-        projection._connect(params = params)
+        projection._connect(rule_params, syn_params)
 
 class NewFixedNumberConnector() :
     def __init__(self, n, allow_self_connections=True, safe=True,
@@ -99,10 +99,10 @@ class NewFixedNumberConnector() :
         self.n = n
 
     def connect(self,projection) :
-        params = projection.transform_parameters()
-        params.update({'autapses' : self.allow_self_connections,
+        syn_params = projection.synapse_parameters()
+        rule_params = {'autapses' : self.allow_self_connections,
                        'rule' : 'fixed_total_number',
                        'N' : self.n
-                   })
+                   }
 
-        projection._connect(params = params)
+        projection._connect(rule_params, syn_params)
