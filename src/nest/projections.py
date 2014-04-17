@@ -90,10 +90,18 @@ class Projection(common.Projection):
         params = {'model' : self.synapse_type.nest_name}
         parameter_space = self.synapse_type.native_parameters
         for ii,jj in parameter_space.items() :
-            if isinstance(jj.base_value,RandomDistribution) :
+            if isinstance(jj.base_value,RandomDistribution) :                # Random Distribution specified
                 if jj.base_value.name == 'normal' :                          # Currently nest.NewConnect takes only normal distributions
-#                    logger.warning("Random s will be created inside NEST with NEST's own RNGs")
-                    distribution_parameters = {'distribution' : jj.base_value.name}
+                    logger.warning("Random values will be created inside NEST with NEST's own RNGs")
+                    
+                    if jj.base_value.boundaries and jj.base_value.constrain == 'clip' :
+                        logger.Error("NEST does not support this option. Values ")
+                    elif jj.base_value.boundaries and jj.base_value.constrain =='redraw' :
+                        distribution_parameters = {'distribution' : jj.base_value.name+'_clipped',
+                                                   'min' : jj.base_value.min_bound,
+                                                   'max' : jj.base_value.max_bound} ### TODO This needs a discussion about names
+                    else :
+                        distribution_parameters = {'distribution' : jj.base_value.name}
                     if len(jj.base_value.parameters) == 0 :                  # Default parameters of numpy.random.RandomState.normal, for most distributions
                         distribution_parameters.update({'mu' : 0., 'sigma' : 1.})               # these are probably equal to the GSL default parameters, we could check this and 
                                                                              # then remove this if/else branch
@@ -105,10 +113,10 @@ class Projection(common.Projection):
                     jj.shape = (self.pre.size,self.post.size)
                     params[ii] = jj.evaluate()
                                     
-            else :
-                try:
+            else :                                                           # explicit values given
+                if jj.shape :
                     params[ii] = jj.evaluate()  # If ii is given as an array
-                except ValueError :
+                else :
                     jj.shape = (1,1)
                     params[ii] = float(jj.evaluate()) # If ii is given as a single number. Checking of the dimensions should be done in NEST
         return params

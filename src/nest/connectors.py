@@ -92,7 +92,7 @@ class NewFixedNumberPostConnector() :
 
         projection._connect(rule_params, syn_params)
 
-class NewFixedNumberConnector() :
+class NewFixedTotalNumberConnector() :
     def __init__(self, n, allow_self_connections=True, safe=True,
                  callback=None):
         self.allow_self_connections = allow_self_connections
