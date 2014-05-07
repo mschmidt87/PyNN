@@ -14,6 +14,7 @@ from itertools import repeat
 from pyNN import common, errors, core, recording
 from pyNN.random import RandomDistribution
 from pyNN.space import Space
+from pyNN.nest import NEST_RDEV_TYPES
 from . import simulator
 from .standardmodels.synapses import StaticSynapse
 from .conversion import make_sli_compatible
@@ -97,24 +98,24 @@ class Projection(common.Projection):
         parameter_space = self.synapse_type.native_parameters
         for ii,jj in parameter_space.items() :
             if isinstance(jj.base_value,RandomDistribution) :                # Random Distribution specified
-                if jj.base_value.name == 'normal' :                          # Currently nest.NewConnect takes only normal distributions
+                if jj.base_value.name in NEST_RDEV_TYPES  :                          # Currently nest.NewConnect takes only normal distributions
                     logger.warning("Random values will be created inside NEST with NEST's own RNGs")
-                    
-                    if jj.base_value.boundaries and jj.base_value.constrain == 'clip' :
-                        logger.Error("NEST does not support this option. Values ")
-                    elif jj.base_value.boundaries and jj.base_value.constrain =='redraw' :
-                        distribution_parameters = {'distribution' : jj.base_value.name+'_clipped',
-                                                   'min' : jj.base_value.min_bound,
-                                                   'max' : jj.base_value.max_bound} ### TODO This needs a discussion about names
-                    else :
-                        distribution_parameters = {'distribution' : jj.base_value.name}
-                    if len(jj.base_value.parameters) == 0 :                  # Default parameters of numpy.random.RandomState.normal, for most distributions
-                        distribution_parameters.update({'mu' : 0., 'sigma' : 1.})               # these are probably equal to the GSL default parameters, we could check this and 
-                                                                             # then remove this if/else branch
-                    else :
-                        distribution_parameters.update({'mu' : jj.base_value.parameters[0], 'sigma' : jj.base_value.parameters[1]})
+
+                    distribution_parameters = {'distribution' : jj.base_value.name}
+                    distribution_parameters.update(jj.base_value.parameters)
+                    # distribution_parameters = {'distribution' : jj.base_value.name,
+                    #                                'min' : jj.base_value.min_bound,
+                    #                                'max' : jj.base_value.max_bound}
+                    # else :
+                    #     distribution_parameters = {'distribution' : jj.base_value.name}
+                    # if len(jj.base_value.parameters) == 0 :                  # Default parameters of numpy.random.RandomState.normal, for most distributions
+                    #     distribution_parameters.update({'mu' : 0., 'sigma' : 1.})               # these are probably equal to the GSL default parameters, we could check this and 
+                    #                                                          # then remove this if/else branch
+                    # else :
+                    #     distribution_parameters.update({'mu' : jj.base_value.parameters[0], 'sigma' : jj.base_value.parameters[1]})
 
                     params[ii] = distribution_parameters
+                    print params[ii]
                 else :
                     jj.shape = (self.pre.size,self.post.size)
                     params[ii] = jj.evaluate()
