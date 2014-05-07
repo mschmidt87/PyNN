@@ -14,6 +14,9 @@ except ImportError:
     pass
 import nest
 NEST_SYNAPSE_TYPES = nest.Models(mtype='synapses')
+NEST_RDEV_TYPES = ['binomial','binomial_clipped','binomial_clipped_to_boundary','exponential','exponential_clipped','exponential_clipped_to_boundary','gamma','gamma_clipped','gamma_clipped_to_boundary','gsl_binomial','lognormal','lognormal_clipped','lognormal_clipped_to_boundary','normal','normal_clipped','normal_clipped_to_boundary','poisson','poisson_clipped','poisson_clipped_to_boundary','uniform','uniformint']
+
+
 from . import simulator
 from pyNN import common, recording, errors, space, __doc__
 
