@@ -103,17 +103,6 @@ class Projection(common.Projection):
 
                     distribution_parameters = {'distribution' : jj.base_value.name}
                     distribution_parameters.update(jj.base_value.parameters)
-                    # distribution_parameters = {'distribution' : jj.base_value.name,
-                    #                                'min' : jj.base_value.min_bound,
-                    #                                'max' : jj.base_value.max_bound}
-                    # else :
-                    #     distribution_parameters = {'distribution' : jj.base_value.name}
-                    # if len(jj.base_value.parameters) == 0 :                  # Default parameters of numpy.random.RandomState.normal, for most distributions
-                    #     distribution_parameters.update({'mu' : 0., 'sigma' : 1.})               # these are probably equal to the GSL default parameters, we could check this and 
-                    #                                                          # then remove this if/else branch
-                    # else :
-                    #     distribution_parameters.update({'mu' : jj.base_value.parameters[0], 'sigma' : jj.base_value.parameters[1]})
-
                     params[ii] = distribution_parameters
                     print params[ii]
                 else :
