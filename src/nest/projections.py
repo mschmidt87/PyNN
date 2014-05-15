@@ -15,6 +15,7 @@ from pyNN import common, errors
 from pyNN.space import Space
 from pyNN.nest import NEST_RDEV_TYPES
 from . import simulator
+from pyNN.random import RandomDistribution
 from pyNN.nest.random import NativeRNG
 from .standardmodels.synapses import StaticSynapse
 from .conversion import make_sli_compatible
