@@ -16,8 +16,10 @@ from pyNN.random import RandomDistribution
 from pyNN.space import Space
 from pyNN.nest import NEST_RDEV_TYPES
 from . import simulator
+from pyNN.nest.random import NativeRNG
 from .standardmodels.synapses import StaticSynapse
 from .conversion import make_sli_compatible
+
 
 logger = logging.getLogger("PyNN")
 
@@ -100,11 +102,7 @@ class Projection(common.Projection):
             if isinstance(jj.base_value,RandomDistribution) :                # Random Distribution specified
                 if jj.base_value.name in NEST_RDEV_TYPES  :                          # Currently nest.NewConnect takes only normal distributions
                     logger.warning("Random values will be created inside NEST with NEST's own RNGs")
-
-                    distribution_parameters = {'distribution' : jj.base_value.name}
-                    distribution_parameters.update(jj.base_value.parameters)
-                    params[ii] = distribution_parameters
-                    print params[ii]
+                    params[ii] = NativeRNG(jj.base_value).parameters 
                 else :
                     jj.shape = (self.pre.size,self.post.size)
                     params[ii] = jj.evaluate()
