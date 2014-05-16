@@ -9,7 +9,7 @@ for improved performance.
 """
 
 from __future__ import division
-from pyNN.random import RandomDistribution, AbstractRNG, NumpyRNG
+from pyNN.random import RandomDistribution, AbstractRNG, NumpyRNG, get_mpi_config
 from pyNN.common.populations import is_conductance
 from pyNN.core import IndexBasedExpression
 from pyNN import errors, descriptions
@@ -882,3 +882,51 @@ class ArrayConnector(MapConnector):
     def connect(self, projection):
         connection_map = LazyArray(self.array, projection.shape)
         self._connect_with_map(projection, connection_map)
+
+
+class NativeFixedTotalNumberConnector(FixedNumberConnector):
+    # base class - should not be instantiated
+    parameter_names = ('allow_self_connections', 'n')
+
+    def __init__(self, n, allow_self_connections=True, with_replacement=True,
+                 rng=None, safe=True, callback=None):
+        """
+        Create a new connector.
+        """
+        Connector.__init__(self, safe, callback)
+        assert isinstance(allow_self_connections, bool) or allow_self_connections == 'NoMutual'
+        self.allow_self_connections = allow_self_connections
+        self.with_replacement = with_replacement
+        self.n = n
+        if isinstance(n, int):
+            assert n >= 0
+        elif isinstance(n, RandomDistribution):
+            # weak check that the random distribution is ok
+            assert numpy.all(numpy.array(n.next(100)) >= 0), "the random distribution produces negative numbers"
+        else:
+            raise TypeError("n must be an integer or a RandomDistribution object")
+        self.rng = _get_rng(rng)
+
+
+    def connect(self, projection):
+        # Determine number of processes and current rank
+        rank, num_processes = get_mpi_config()
+
+        # Assume that targets are equally distributed over processes
+        targets_per_process = int(len(projection.post)/num_processes)
+            
+        # Calculate the number of synapses on each process
+        rng = NumpyRNG(seed=num_processes)
+        bino = RandomDistribution('binomial',[self.n,targets_per_process/len(projection.post)], rng=rng)
+        num_conns_on_vp = numpy.zeros(num_processes)
+        sum_dist = 0
+        sum_partitions = 0
+        for k in xrange(num_processes) :
+            p_local = targets_per_process / ( len(projection.post) - sum_dist)
+            bino.parameters['p'] = p_local
+            bino.parameters['n'] = self.n - sum_partitions
+            num_conns_on_vp[k] = bino.next()
+            sum_dist += targets_per_process
+            sum_partitions += num_conns_on_vp[k]
+	
+        # Draw random sources and targets 
