@@ -884,7 +884,7 @@ class ArrayConnector(MapConnector):
         self._connect_with_map(projection, connection_map)
 
 
-class NativeFixedTotalNumberConnector(FixedNumberConnector):
+class FixedTotalNumberConnector(FixedNumberConnector):
     # base class - should not be instantiated
     parameter_names = ('allow_self_connections', 'n')
 
@@ -916,8 +916,7 @@ class NativeFixedTotalNumberConnector(FixedNumberConnector):
         targets_per_process = int(len(projection.post)/num_processes)
             
         # Calculate the number of synapses on each process
-        rng = NumpyRNG(seed=num_processes)
-        bino = RandomDistribution('binomial',[self.n,targets_per_process/len(projection.post)], rng=rng)
+        bino = RandomDistribution('binomial',[self.n,targets_per_process/len(projection.post)], rng=self.rng)
         num_conns_on_vp = numpy.zeros(num_processes)
         sum_dist = 0
         sum_partitions = 0
@@ -930,3 +929,21 @@ class NativeFixedTotalNumberConnector(FixedNumberConnector):
             sum_partitions += num_conns_on_vp[k]
 	
         # Draw random sources and targets 
+        while num_conns_on_vp[rank] > 0 :
+            s_index = self.rng.rng.randint(low=0, high=len(projection.pre.all_cells))
+            t_index = self.rng.rng.randint(low=0, high=len(projection.post.local_cells))
+            t_index = numpy.where(projection.post.all_cells == int(projection.post.local_cells[t_index]))[0][0]
+
+            # Evaluate the lazy arrays containing the synaptic parameters
+            parameter_space = self._parameters_from_synapse_type(projection)
+            connection_parameters = {}
+            for name, map in parameter_space.items():
+                if map.is_homogeneous:
+                    connection_parameters[name] = map.evaluate(simplify=True)
+                else:
+                    connection_parameters[name] = map[source_mask, col]
+            
+            projection._convergent_connect(numpy.array([s_index]),t_index, **connection_parameters)
+            num_conns_on_vp[rank] -=1
+
+            

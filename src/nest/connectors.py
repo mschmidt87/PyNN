@@ -8,7 +8,6 @@ Connection method classes for nest
 
 from pyNN import random, core, errors
 from pyNN.connectors import Connector, \
-                            AllToAllConnector, \
                             DistanceDependentProbabilityConnector, \
                             DisplacementDependentProbabilityConnector, \
                             IndexBasedProbabilityConnector, \
